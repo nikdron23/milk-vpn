@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Вход в админку — {{ cfg.brand_name }}{% endblock %}
+{% block nav %}{% endblock %}
+{% block footer %}{% endblock %}
+{% block content %}
+<form method="post" action="/admin/login" class="card narrow stack">
+  {{ csrf_input() }}
+  <h2>Админ-панель</h2>
+  <div><label>Логин</label><input name="login" autocomplete="username" required style="width:100%"></div>
+  <div><label>Пароль</label><input name="password" type="password" autocomplete="current-password" required style="width:100%"></div>
+  <button type="submit">Войти</button>
+</form>
+{% endblock %}

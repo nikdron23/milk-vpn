@@ -1,0 +1,38 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h1 style="font-size:32px;margin-bottom:20px">Обзор</h1>
+
+<section class="grid">
+  <div class="card"><div class="stat">{{ stats.users }}</div><div class="stat-l">пользователей</div></div>
+  <div class="card"><div class="stat">{{ stats.active_keys }}</div><div class="stat-l">активных ключей</div></div>
+  <div class="card"><div class="stat">{{ stats.revenue|rub }} ₽</div><div class="stat-l">выручка всего · {{ stats.paid }} заказов</div></div>
+  <div class="card"><div class="stat">{{ stats.revenue30|rub }} ₽</div><div class="stat-l">выручка за 30 дней</div></div>
+  <div class="card"><div class="stat">{{ stats.pending }}</div><div class="stat-l">неоплаченных заказов</div></div>
+</section>
+
+<div class="row" style="justify-content:space-between;align-items:center;margin:32px 0 12px">
+  <h2 style="font-size:22px">VPN-серверы</h2>
+  <a class="btn small" href="/admin/servers">Управление</a>
+</div>
+<div class="table-wrap">
+  <table>
+    <tr><th>Сервер</th><th>Статус</th><th>Подробности</th></tr>
+    {% for sv in servers %}
+    <tr>
+      <td>{{ sv.flag }} {{ sv.name }}</td>
+      <td>
+        {% if not sv.active %}<span class="badge">отключён</span>
+        {% elif pings[sv.id][0] %}<span class="badge ok">онлайн</span>
+        {% else %}<span class="badge bad">недоступен</span>{% endif %}
+      </td>
+      <td class="muted">{{ pings[sv.id][1] if sv.id in pings else '—' }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="3" class="muted">Серверов нет — <a href="/admin/servers/new">добавьте первый</a>. Без серверов ключи выдаваться не будут.</td></tr>
+    {% endfor %}
+  </table>
+</div>
+
+<h2 style="font-size:22px;margin:32px 0 12px">Последние заказы</h2>
+{% include "admin/_orders_table.html" %}
+{% endblock %}

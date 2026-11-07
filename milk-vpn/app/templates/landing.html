@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% block main %}
+{% set cta = bot_link or '/login' %}
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow">{{ icon('zap') }} Ключ приходит в Telegram за минуту</span>
+      <h1>Быстрый VPN <em>без лишних сложностей</em></h1>
+      <p class="lead">
+        {{ cfg.brand_name }} — стабильное защищённое соединение на телефоне, компьютере и планшете.
+        {% if servers|length > 1 %}Серверы в {{ servers|length }} странах, переключение между ними — в один тап.{% else %}Современный протокол, высокая скорость, простое подключение.{% endif %}
+        Оплата картой или СБП.
+      </p>
+      <div class="cta-row">
+        <a class="btn lg" href="{{ cta }}">Подключиться</a>
+        <a class="btn lg ghost" href="#pricing">Смотреть тарифы</a>
+      </div>
+      {% if cfg.trial_days > 0 %}<p class="hero-note">Есть пробный период — попробуйте бесплатно, карта не нужна.</p>{% endif %}
+    </div>
+
+    <div class="phone" aria-hidden="true">
+      <div class="phone-top"><span>{{ cfg.brand_name }}</span><span class="small muted"><span class="dot"></span>подключено</span></div>
+      <div class="power">{{ icon('power') }}</div>
+      <div class="loc-list">
+        {% for sv in servers[:4] %}
+          <div class="loc-row"><span class="fl">{{ sv.flag }}</span>{{ sv.name }}<span class="st">онлайн</span></div>
+        {% else %}
+          <div class="loc-row"><span class="fl">🌐</span>Автовыбор<span class="st">онлайн</span></div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section alt" id="features">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Всё, что нужно от VPN</h2>
+      <p>Без сложных настроек и скрытых условий.</p>
+    </div>
+    <div class="features">
+      <div class="feature"><div class="ic">{{ icon('zap') }}</div><h3>Высокая скорость</h3><p>Современный протокол VLESS + Reality: стабильное соединение и минимальные задержки.</p></div>
+      <div class="feature"><div class="ic">{{ icon('globe') }}</div><h3>Несколько стран</h3><p>Один ключ открывает все доступные локации. Выбирайте ближайшую или нужную.</p></div>
+      <div class="feature"><div class="ic">{{ icon('phone') }}</div><h3>Все устройства</h3><p>Android, iOS, Windows, macOS, Linux — подойдёт любое популярное приложение.</p></div>
+      <div class="feature"><div class="ic">{{ icon('key') }}</div><h3>Ключ за минуту</h3><p>После оплаты бот сразу присылает ссылку-подписку и QR-код. Никаких ожиданий.</p></div>
+      <div class="feature"><div class="ic">{{ icon('card') }}</div><h3>Удобная оплата</h3><p>Банковские карты и СБП. Продление — в пару нажатий, срок прибавляется к текущему.</p></div>
+      <div class="feature"><div class="ic">{{ icon('chat') }}</div><h3>Поддержка</h3><p>Поможем с подключением и оплатой в Telegram.</p></div>
+    </div>
+  </div>
+</section>
+
+{% if servers %}
+<section class="section" id="locations">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Локации</h2>
+      <p>Все серверы входят в любой тариф. Новые добавляем без доплат.</p>
+    </div>
+    <div class="locs">
+      {% for sv in servers %}
+        <div class="loc-card"><span class="fl">{{ sv.flag }}</span>{{ sv.name }}</div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="section alt" id="how">
+  <div class="wrap">
+    <div class="section-head"><h2>Как это работает</h2><p>Три шага — и вы онлайн.</p></div>
+    <div class="steps">
+      <div class="step"><h3>Откройте бота</h3><p>Нажмите «Подключиться» и запустите бота в Telegram. Можно сразу взять пробный период.</p></div>
+      <div class="step"><h3>Выберите тариф</h3><p>Оплатите картой или через СБП. Ключ придёт в чат автоматически.</p></div>
+      <div class="step"><h3>Добавьте в приложение</h3><p>Скопируйте ссылку-подписку или отсканируйте QR-код — <a href="/setup">подробная инструкция</a>.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="pricing">
+  <div class="wrap">
+    <div class="section-head"><h2>Тарифы</h2><p>Чем дольше срок — тем выгоднее.</p></div>
+    <div class="plans">
+      {% for p in plans %}
+      <div class="plan {{ 'best' if p.id == best_plan_id }}">
+        {% if p.id == best_plan_id %}<span class="tag">Выгоднее всего</span>{% endif %}
+        <h3>{{ p.name }}</h3>
+        <div class="price">{{ p.price_kop|rub }} <small>₽</small></div>
+        {% if p.days > 31 %}<div class="muted small">≈ {{ (p.price_kop * 30 / p.days)|round|int|rub }} ₽ в месяц</div>{% else %}<div class="muted small">&nbsp;</div>{% endif %}
+        <ul>
+          <li>{{ p.days|days }}</li>
+          <li>{% if p.traffic_gb %}{{ p.traffic_gb }} ГБ трафика{% else %}Безлимитный трафик{% endif %}</li>
+          <li>{% if p.limit_ip %}До {{ p.limit_ip }} устройств{% else %}Без ограничения устройств{% endif %}</li>
+          <li>{% if servers|length > 1 %}Все {{ servers|length }} локации{% else %}Все локации сервиса{% endif %}</li>
+        </ul>
+        <a class="btn {{ '' if p.id == best_plan_id else 'ghost' }}" href="{{ cta }}">Выбрать</a>
+      </div>
+      {% else %}
+      <p class="muted center-t">Тарифы скоро появятся.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% if ref_enabled and (ref_inviter_days or ref_invitee_days) %}
+<section class="section" style="padding-top:0">
+  <div class="wrap">
+    <div class="promo">
+      <div>
+        <h2>Приведи друга — получи бонус</h2>
+        <p>
+          {% if ref_inviter_days %}Вы получаете +{{ ref_inviter_days|days }} за оплату друга. {% endif %}
+          {% if ref_invitee_days %}Друг получает +{{ ref_invitee_days|days }} к первой покупке. {% endif %}
+          Ваша личная ссылка — в боте и в личном кабинете.
+        </p>
+      </div>
+      <a class="btn lg" href="{{ cta }}">{{ icon('gift') }} Получить ссылку</a>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="section alt" id="faq">
+  <div class="wrap">
+    <div class="section-head"><h2>Частые вопросы</h2></div>
+    <div class="faq">
+      <details><summary>Как быстро я получу ключ?</summary><p>Сразу после оплаты: бот пришлёт ссылку-подписку и QR-код, а на сайте ключ появится в личном кабинете.</p></details>
+      <details><summary>На скольких устройствах можно пользоваться?</summary><p>Количество устройств зависит от тарифа — оно указано в карточке тарифа. Один ключ подходит для телефона, компьютера и планшета.</p></details>
+      <details><summary>Какие приложения подходят?</summary><p>Hiddify, v2rayNG, Streisand, V2Box, Nekoray и другие клиенты с поддержкой VLESS и ссылок-подписок. Пошаговая инструкция — на странице <a href="/setup">«Как подключить»</a>.</p></details>
+      <details><summary>Что значит «все локации»?</summary><p>В ссылке-подписке находятся все наши серверы. Приложение показывает их списком — выберите страну и подключайтесь. Новые серверы появляются автоматически при обновлении подписки.</p></details>
+      <details><summary>Как продлить?</summary><p>В боте или личном кабинете выберите ключ и нажмите «Продлить». Новый срок прибавляется к оставшемуся — ничего не сгорает.</p></details>
+      <details><summary>Как войти в личный кабинет?</summary><p>В боте нажмите «Личный кабинет» — придёт одноразовая ссылка для входа. Пароль не нужен.</p></details>
+      <details><summary>Что делать, если не подключается?</summary><p>Обновите подписку в приложении, проверьте срок действия ключа в кабинете и попробуйте другую локацию. Если не помогло — напишите в поддержку.</p></details>
+    </div>
+  </div>
+</section>
+
+<section class="final-cta">
+  <div class="wrap">
+    <h2>Готовы начать?</h2>
+    <p>Подключение занимает около минуты.</p>
+    <a class="btn lg" href="{{ cta }}">Открыть {{ 'бота' if bot_link else 'кабинет' }}</a>
+  </div>
+</section>
+{% endblock %}

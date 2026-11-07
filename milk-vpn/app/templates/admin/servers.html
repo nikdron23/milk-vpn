@@ -1,0 +1,42 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<div class="row" style="justify-content:space-between;align-items:center;margin-bottom:8px">
+  <h1 style="font-size:32px">VPN-серверы</h1>
+  <a class="btn" href="/admin/servers/new">+ Добавить сервер</a>
+</div>
+<p class="muted">Каждый сервер — отдельная панель 3x-ui в своей стране. Ключ пользователя автоматически создаётся на <b>всех активных</b> серверах,
+а ссылка-подписка содержит все локации. Активных ключей: {{ active_keys }}.</p>
+
+<div class="table-wrap">
+  <table>
+    <tr><th>Сервер</th><th>Страна</th><th>Статус</th><th>Ключей на сервере</th><th>Панель</th><th>Действия</th></tr>
+    {% for sv in servers %}
+    <tr>
+      <td><b>{{ sv.flag }} {{ sv.name }}</b> <span class="muted small">#{{ sv.sort }}</span></td>
+      <td>{{ sv.country or '—' }}</td>
+      <td>
+        {% if not sv.active %}<span class="badge">отключён</span>
+        {% elif pings[sv.id][0] %}<span class="badge ok">онлайн</span>
+        {% else %}<span class="badge bad" title="{{ pings[sv.id][1] }}">недоступен</span>{% endif %}
+        {% if sv.active and pings[sv.id][0] and not pings[sv.id][1].startswith('vless') %}<span class="badge warn" title="Поддерживается только VLESS">не VLESS</span>{% endif %}
+      </td>
+      <td>{% set c = counts.get(sv.id, 0) %}{% if sv.active and c < active_keys %}<span class="badge warn">{{ c }} из {{ active_keys }}</span>{% else %}{{ c }}{% endif %}</td>
+      <td class="muted small" title="{{ pings[sv.id][1] if sv.id in pings else '' }}">{{ sv.url }} · inbound {{ sv.inbound_id }}</td>
+      <td>
+        <div class="row" style="align-items:center;gap:6px">
+          <a class="btn small ghost" href="/admin/servers/{{ sv.id }}/edit">Изменить</a>
+          <form method="post" action="/admin/servers/{{ sv.id }}/toggle" class="inline">{{ csrf_input() }}<button class="small ghost">{{ 'Отключить' if sv.active else 'Включить' }}</button></form>
+          {% if sv.active %}<form method="post" action="/admin/servers/{{ sv.id }}/sync" class="inline">{{ csrf_input() }}<button class="small ghost">Синхронизировать</button></form>{% endif %}
+          <form method="post" action="/admin/servers/{{ sv.id }}/delete" class="inline"
+                onsubmit="return confirm('Удалить сервер «{{ sv.name }}» из списка? Клиенты на самой панели 3x-ui останутся нетронутыми.')">
+            {{ csrf_input() }}<button class="small danger">Удалить</button></form>
+        </div>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="6" class="muted">Серверов пока нет. Добавьте первый — без него ключи выдаваться не будут.</td></tr>
+    {% endfor %}
+  </table>
+</div>
+<p class="muted small">«Синхронизировать» добавляет на сервер ключи, которых там ещё нет (например, после добавления нового сервера или если он был недоступен при выдаче). Это же делается автоматически раз в 5 минут.</p>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h1 style="font-size:30px">{{ u.display }} {% if u.is_banned %}<span class="badge bad">заблокирован</span>{% endif %}</h1>
+<p class="muted">Telegram ID {{ u.tg_id }} · {{ u.first_name or '—' }} · с {{ u.created_at|dt }} · пробный период: {{ 'использован' if u.trial_used else 'не использован' }}
+{% if referrer %}· пригласил: <a href="/admin/users/{{ referrer.id }}">{{ referrer.display }}</a>{% endif %}
+{% if stats.invited %}· привёл: {{ stats.invited }} (оплатили: {{ stats.paid }}, +{{ stats.days|days }}){% endif %}
+{% if u.bonus_days %}· бонус ждёт применения: {{ u.bonus_days|days }}{% endif %}</p>
+
+<div class="row" style="margin-bottom:8px">
+  <form method="post" action="/admin/users/{{ u.id }}/ban" class="inline"
+        onsubmit="return confirm('{{ 'Разблокировать' if u.is_banned else 'Заблокировать' }} пользователя?')">
+    {{ csrf_input() }}
+    <button class="{{ 'ghost' if u.is_banned else 'danger' }} small">{{ 'Разблокировать' if u.is_banned else 'Заблокировать' }}</button>
+  </form>
+  <form method="post" action="/admin/users/{{ u.id }}/grant" class="row" style="align-items:center">
+    {{ csrf_input() }}
+    <select name="plan_id">{% for p in plans %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}</select>
+    <button class="small">Выдать ключ бесплатно</button>
+  </form>
+</div>
+<p class="muted small">Блокировка закрывает доступ к боту и кабинету. Уже выданные ключи продолжают работать — отзовите их отдельно, если нужно.</p>
+
+<h2 style="font-size:22px;margin:28px 0 12px">Ключи</h2>
+<div class="table-wrap">
+  <table>
+    <tr><th>#</th><th>Тариф</th><th>До</th><th>Статус</th></tr>
+    {% for k in keys %}
+    <tr><td>{{ k.id }}</td><td>{{ k.plan.name if k.plan else ('пробный' if k.is_trial else '—') }}</td><td>{{ k.expires_at|dt }}</td>
+      <td>{% if not k.active %}<span class="badge bad">отозван</span>{% elif k.expired %}<span class="badge warn">истёк</span>{% else %}<span class="badge ok">активен</span>{% endif %}</td></tr>
+    {% else %}<tr><td colspan="4" class="muted">Ключей нет</td></tr>{% endfor %}
+  </table>
+</div>
+
+<h2 style="font-size:22px;margin:28px 0 12px">Заказы</h2>
+<div class="table-wrap">
+  <table>
+    <tr><th>№</th><th>Дата</th><th>Тариф</th><th>Сумма</th><th>Статус</th></tr>
+    {% for o in orders %}
+    <tr><td>{{ o.id }}</td><td>{{ o.created_at|dt }}</td><td>{{ o.plan.name }}</td><td>{{ o.amount_kop|rub }} ₽</td>
+      <td>{% if o.status == 'paid' %}<span class="badge ok">оплачен</span>{% else %}<span class="badge warn">ожидает</span>{% endif %}</td></tr>
+    {% else %}<tr><td colspan="5" class="muted">Заказов нет</td></tr>{% endfor %}
+  </table>
+</div>
+{% endblock %}

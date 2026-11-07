@@ -1,0 +1,12 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h1 style="font-size:32px;margin-bottom:16px">Заказы</h1>
+<p class="row">
+  <a class="btn small {{ '' if status == 'all' else 'ghost' }}" href="/admin/orders?status=all">Все</a>
+  <a class="btn small {{ '' if status == 'paid' else 'ghost' }}" href="/admin/orders?status=paid">Оплаченные</a>
+  <a class="btn small {{ '' if status == 'pending' else 'ghost' }}" href="/admin/orders?status=pending">Ожидают</a>
+</p>
+{% include "admin/_orders_table.html" %}
+<p class="muted small">«Выдать вручную» — если деньги пришли, а ключ не выдался (например, серверы были недоступны).
+Проверьте платёж в кабинете Робокассы перед подтверждением.</p>
+{% endblock %}

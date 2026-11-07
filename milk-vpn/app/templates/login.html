@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Вход — {{ cfg.brand_name }}{% endblock %}
+{% block content %}
+<div class="card narrow stack">
+  <h2>Личный кабинет</h2>
+  <p class="muted">Вход через Telegram — пароль не нужен.</p>
+  <ol class="muted" style="padding-left:20px;margin:0">
+    <li>Откройте бота</li>
+    <li>Нажмите «👤 Личный кабинет»</li>
+    <li>Перейдите по полученной ссылке</li>
+  </ol>
+  {% if bot_link %}<a class="btn" href="{{ bot_link }}">Открыть бота</a>{% endif %}
+</div>
+{% endblock %}

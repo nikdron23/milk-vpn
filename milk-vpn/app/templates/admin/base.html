@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Админ — {{ cfg.brand_name }}{% endblock %}
+{% block nav %}
+  <a href="/admin">Обзор</a>
+  <a href="/admin/servers">Серверы</a>
+  <a href="/admin/orders">Заказы</a>
+  <a href="/admin/keys">Ключи</a>
+  <a href="/admin/users">Пользователи</a>
+  <a href="/admin/plans">Тарифы</a>
+  <a href="/admin/settings">Рефералка</a>
+  <a href="/admin/broadcast">Рассылка</a>
+  <a href="/admin/logout">Выйти</a>
+{% endblock %}
+{% block footer %}{% endblock %}

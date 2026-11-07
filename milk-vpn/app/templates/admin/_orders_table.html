@@ -1,0 +1,25 @@
+<div class="table-wrap">
+  <table>
+    <tr><th>№</th><th>Дата</th><th>Пользователь</th><th>Тариф</th><th>Сумма</th><th>Статус</th><th></th></tr>
+    {% for o in orders %}
+    <tr>
+      <td>{{ o.id }}</td>
+      <td>{{ o.created_at|dt }}</td>
+      <td><a href="/admin/users/{{ o.user_id }}">{{ o.user.display }}</a></td>
+      <td>{{ o.plan.name }}{% if o.renew_key_id %} <span class="muted small">(продление #{{ o.renew_key_id }})</span>{% endif %}</td>
+      <td>{{ o.amount_kop|rub }} ₽</td>
+      <td>{% if o.status == 'paid' %}<span class="badge ok">оплачен</span>{% else %}<span class="badge warn">ожидает</span>{% endif %}</td>
+      <td>
+        {% if o.status != 'paid' %}
+        <form method="post" action="/admin/orders/{{ o.id }}/mark-paid" class="inline"
+              onsubmit="return confirm('Отметить заказ №{{ o.id }} оплаченным и выдать ключ?')">
+          {{ csrf_input() }}<button class="small ghost">Выдать вручную</button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="7" class="muted">Заказов нет</td></tr>
+    {% endfor %}
+  </table>
+</div>

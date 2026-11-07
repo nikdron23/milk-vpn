@@ -1,0 +1,14 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h1 style="font-size:32px;margin-bottom:16px">Рассылка</h1>
+<form method="post" action="/admin/broadcast" class="card stack"
+      onsubmit="return confirm('Отправить сообщение всем пользователям бота?')">
+  {{ csrf_input() }}
+  <div>
+    <label>Текст сообщения (поддерживается HTML: &lt;b&gt;, &lt;i&gt;, &lt;a href&gt;, &lt;code&gt;)</label>
+    <textarea name="text" maxlength="4000" required></textarea>
+  </div>
+  <button type="submit">Отправить всем</button>
+  <p class="muted small">Рассылка идёт в фоне, около 20 сообщений в секунду. Заблокированные пользователи не получают сообщений.</p>
+</form>
+{% endblock %}

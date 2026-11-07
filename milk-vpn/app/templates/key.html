@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Ключ #{{ key.id }} — {{ cfg.brand_name }}{% endblock %}
+{% block nav %}<a href="/setup">Как подключить</a><a href="/cabinet">← Кабинет</a><a href="/logout">Выйти</a>{% endblock %}
+{% block content %}
+<h1 style="font-size:34px">Ключ #{{ key.id }}
+  {% if key.expired %}<span class="badge bad">истёк</span>{% else %}<span class="badge ok">активен</span>{% endif %}
+</h1>
+<p class="muted">{{ key.plan.name if key.plan else ('Пробный' if key.is_trial else '—') }} · действует до <strong style="color:var(--ink)">{{ key.expires_at|dt }}</strong>
+{% if usage %}· трафик {{ usage[0]|hbytes }} / {{ usage[1]|hbytes if usage[1] else '∞' }}{% endif %}</p>
+
+<div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); align-items:start">
+  <div class="card stack">
+    <h3>Ссылка-подписка</h3>
+    <p class="muted small" style="margin:0">Добавьте её в приложение один раз — все локации появятся списком и будут обновляться сами.</p>
+    <div class="code">{{ sub_url }}</div>
+    <button class="small" data-copy="{{ sub_url }}">Копировать</button>
+    <p class="muted small" style="margin:0">Не знаете, какое приложение выбрать? <a href="/setup">Инструкция</a>.</p>
+  </div>
+  <div class="card stack">
+    <h3>QR-код</h3>
+    <div class="qr">{{ qr|safe }}</div>
+  </div>
+</div>
+
+{% if servers %}
+<h2 style="font-size:24px;margin:32px 0 12px">Доступные локации</h2>
+<div class="row" style="gap:10px">
+  {% for sv in servers %}<span class="badge" style="font-size:14px;padding:6px 14px"><span style="font-size:18px;vertical-align:-2px">{{ sv.flag }}</span> {{ sv.name }}</span>{% endfor %}
+</div>
+{% endif %}
+
+<h2 style="font-size:24px;margin:32px 0 12px">Продлить</h2>
+<form method="post" action="/cabinet/buy" class="card row">
+  {{ csrf_input() }}
+  <input type="hidden" name="key_id" value="{{ key.id }}">
+  <div><label>Тариф</label>
+    <select name="plan_id">
+      {% for p in plans %}<option value="{{ p.id }}">{{ p.name }} — {{ p.price_kop|rub }} ₽</option>{% endfor %}
+    </select></div>
+  <button type="submit">Оплатить продление</button>
+</form>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h1 style="font-size:32px;margin-bottom:8px">Реферальная программа и пробный период</h1>
+<p class="muted">Изменения применяются сразу. Бонусные дни добавляются к ключу автоматически; если у пригласившего пока нет ключа — дождутся его первой покупки.</p>
+
+<form method="post" action="/admin/settings" class="card stack" style="max-width:720px">
+  {{ csrf_input() }}
+  <h3>«Приведи друга»</h3>
+  <label class="check"><input type="checkbox" name="ref_enabled" value="1" {{ 'checked' if v.ref_enabled in ('1','true','on') }}> Реферальная программа включена</label>
+  <div class="row">
+    <div><label>Награда пригласившему, дней</label><input name="ref_inviter_days" type="number" min="0" max="3650" value="{{ v.ref_inviter_days }}" style="width:150px"></div>
+    <div><label>Бонус приглашённому к 1-й покупке, дней</label><input name="ref_invitee_days" type="number" min="0" max="3650" value="{{ v.ref_invitee_days }}" style="width:150px"></div>
+    <div><label>Макс. наград на одного (0 — без лимита)</label><input name="ref_max_rewards" type="number" min="0" max="3650" value="{{ v.ref_max_rewards }}" style="width:150px"></div>
+  </div>
+  <label class="check"><input type="checkbox" name="ref_first_only" value="1" {{ 'checked' if v.ref_first_only in ('1','true','on') }}> Награда только за первую оплату друга (иначе — за каждую)</label>
+  <p class="muted small" style="margin:0">Чтобы отключить одну из сторон награды, поставьте 0. Награда начисляется только после реальной оплаты, а не за регистрацию.</p>
+
+  <h3 style="margin-top:12px">Пробный период</h3>
+  <div class="row">
+    <div><label>Длительность, дней (0 — отключить)</label><input name="trial_days" type="number" min="0" max="3650" value="{{ v.trial_days }}" style="width:150px"></div>
+    <div><label>Трафик, ГБ (0 — безлимит)</label><input name="trial_gb" type="number" min="0" max="3650" value="{{ v.trial_gb }}" style="width:150px"></div>
+  </div>
+  <div class="row"><button type="submit">Сохранить</button></div>
+</form>
+
+<h2 style="font-size:22px;margin:32px 0 12px">Статистика рефералов</h2>
+<section class="grid" style="max-width:720px">
+  <div class="card"><div class="stat">{{ invited_total }}</div><div class="stat-l">пришло по приглашениям</div></div>
+  <div class="card"><div class="stat">{{ rewarded_total }}</div><div class="stat-l">наград выдано</div></div>
+  <div class="card"><div class="stat">{{ days_total }}</div><div class="stat-l">дней начислено всего</div></div>
+</section>
+
+<h2 style="font-size:22px;margin:28px 0 12px">Топ приглашающих</h2>
+<div class="table-wrap" style="max-width:720px">
+  <table>
+    <tr><th>Пользователь</th><th>Наград</th><th>Дней</th></tr>
+    {% for u, n, d in top %}
+    <tr><td><a href="/admin/users/{{ u.id }}">{{ u.display }}</a></td><td>{{ n }}</td><td>{{ d }}</td></tr>
+    {% else %}<tr><td colspan="3" class="muted">Пока никто не получал наград</td></tr>{% endfor %}
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h1 style="font-size:32px;margin-bottom:8px">{{ 'Изменить сервер' if server else 'Новый сервер' }}</h1>
+<p class="muted">Панель 3x-ui должна быть доступна с сервера, где работает этот сервис. В панели нужен inbound <b>VLESS</b> — его номер укажите ниже.
+Пароль хранится в зашифрованном виде.</p>
+
+<form method="post" action="/admin/servers/save" class="card stack" style="max-width:720px">
+  {{ csrf_input() }}
+  <input type="hidden" name="server_id" value="{{ server.id if server else 0 }}">
+  <div class="row">
+    <div style="flex:1;min-width:200px"><label>Название (увидят пользователи)</label>
+      <input name="name" required maxlength="64" value="{{ server.name if server else '' }}" placeholder="Нидерланды · Амстердам" style="width:100%"></div>
+    <div><label>Страна (флаг)</label>
+      <select name="country">
+        <option value="">— без флага —</option>
+        {% for code, title in countries.items() %}<option value="{{ code }}" {{ 'selected' if server and server.country == code }}>{{ title }} ({{ code }})</option>{% endfor %}
+      </select></div>
+  </div>
+  <div><label>Адрес панели 3x-ui (вместе с webBasePath, без слэша в конце)</label>
+    <input name="url" required value="{{ server.url if server else '' }}" placeholder="https://1.2.3.4:2053/abcdef" style="width:100%"></div>
+  <div class="row">
+    <div style="flex:1;min-width:180px"><label>Логин панели</label><input name="username" required autocomplete="off" value="{{ server.username if server else '' }}" style="width:100%"></div>
+    <div style="flex:1;min-width:180px"><label>Пароль панели {% if server %}(пусто — не менять){% endif %}</label>
+      <input name="password" type="password" autocomplete="new-password" {{ '' if server else 'required' }} style="width:100%"></div>
+  </div>
+  <div class="row">
+    <div><label>ID inbound (VLESS)</label><input name="inbound_id" type="number" min="1" value="{{ server.inbound_id if server else 1 }}" style="width:110px"></div>
+    <div><label>Flow (для Reality/TCP: xtls-rprx-vision)</label><input name="flow" value="{{ server.flow if server else '' }}" placeholder="xtls-rprx-vision" style="width:240px"></div>
+    <div><label>Порядок</label><input name="sort" type="number" value="{{ server.sort if server else 100 }}" style="width:90px"></div>
+  </div>
+  <div><label>Домен или IP сервера для подключения клиентов (пусто — берётся из адреса панели)</label>
+    <input name="public_host" value="{{ server.public_host if server else '' }}" placeholder="nl.example.com" style="width:100%"></div>
+  <div class="row" style="gap:28px">
+    <label class="check"><input type="checkbox" name="verify_tls" value="1" {{ 'checked' if (not server or server.verify_tls) }}> Проверять TLS-сертификат панели</label>
+    <label class="check"><input type="checkbox" name="active" value="1" {{ 'checked' if (not server or server.active) }}> Сервер включён</label>
+  </div>
+  <p class="muted small" style="margin:0">Если панель открывается по IP с самоподписанным сертификатом — снимите галочку «Проверять TLS».</p>
+  <div class="row"><button type="submit">Сохранить</button><a class="btn ghost" href="/admin/servers">Отмена</a></div>
+</form>
+{% endblock %}

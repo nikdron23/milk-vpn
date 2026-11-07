@@ -1,0 +1,32 @@
+services:
+  vpnshop:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - vpnshop_data:/app/data          # база SQLite (именованный том — права выставляются сами)
+    ports:
+      - "127.0.0.1:8000:8000"           # наружу — только через Caddy (HTTPS)
+
+  # Автоматический HTTPS (Let's Encrypt). Включается профилем https:
+  #   docker compose --profile https up -d
+  caddy:
+    image: caddy:2
+    profiles: ["https"]
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN:-localhost}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - vpnshop
+
+volumes:
+  vpnshop_data:
+  caddy_data:
+  caddy_config:

@@ -1,0 +1,25 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h1 style="font-size:32px;margin-bottom:16px">Пользователи</h1>
+<form method="get" class="row" style="margin-bottom:16px">
+  <input name="q" value="{{ q }}" placeholder="Telegram ID, @username или имя" style="width:300px">
+  <button type="submit">Найти</button>
+</form>
+<div class="table-wrap">
+  <table>
+    <tr><th>ID</th><th>Telegram</th><th>Имя</th><th>Ключей</th><th>Регистрация</th><th></th></tr>
+    {% for u in users %}
+    <tr>
+      <td>{{ u.id }}</td>
+      <td><a href="/admin/users/{{ u.id }}">{{ u.display }}</a> <span class="muted small">{{ u.tg_id }}</span></td>
+      <td>{{ u.first_name or '—' }}</td>
+      <td>{{ counts.get(u.id, 0) }}</td>
+      <td>{{ u.created_at|dt }}</td>
+      <td>{% if u.is_banned %}<span class="badge bad">бан</span>{% endif %}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="6" class="muted">Никого не нашли</td></tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

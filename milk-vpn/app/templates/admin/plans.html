@@ -1,0 +1,25 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h1 style="font-size:32px;margin-bottom:8px">Тарифы</h1>
+<p class="muted">Неактивные тарифы скрыты от покупателей, но уже выданные ключи продолжают работать. Трафик и устройства: 0 — без ограничений.
+Лимит трафика действует на каждом сервере отдельно.</p>
+
+{% macro plan_form(p) %}
+<form method="post" action="/admin/plans/save" class="card row" style="margin-bottom:12px">
+  {{ csrf_input() }}
+  <input type="hidden" name="plan_id" value="{{ p.id if p else 0 }}">
+  <div><label>Название</label><input name="name" value="{{ p.name if p else '' }}" required style="width:170px"></div>
+  <div><label>Дней</label><input name="days" type="number" min="1" value="{{ p.days if p else 30 }}" required style="width:80px"></div>
+  <div><label>Трафик, ГБ</label><input name="traffic_gb" type="number" min="0" value="{{ p.traffic_gb if p else 0 }}" style="width:90px"></div>
+  <div><label>Устройств</label><input name="limit_ip" type="number" min="0" value="{{ p.limit_ip if p else 0 }}" style="width:90px"></div>
+  <div><label>Цена, ₽</label><input name="price" value="{{ (p.price_kop|rub) if p else '' }}" required style="width:90px"></div>
+  <div><label>Порядок</label><input name="sort" type="number" value="{{ p.sort if p else 100 }}" style="width:80px"></div>
+  <div><label class="check"><input type="checkbox" name="active" value="1" {% if not p or p.active %}checked{% endif %}> активен</label></div>
+  <button type="submit">{{ 'Сохранить' if p else 'Добавить' }}</button>
+</form>
+{% endmacro %}
+
+{% for p in plans %}{{ plan_form(p) }}{% endfor %}
+<h2 style="font-size:22px;margin:28px 0 12px">Новый тариф</h2>
+{{ plan_form(none) }}
+{% endblock %}
